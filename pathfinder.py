@@ -19,11 +19,8 @@ def parse_mode(arg1, arg2, arg3, arg4):
             )
 
 
-map_string = """ """
-lines = None
-
-
 def parse_map():
+    map_string = """ """
     try:
         with open(sys.argv[2], "r") as file:
             map_string = file.read()
@@ -34,10 +31,29 @@ def parse_map():
         print(f"An unexpected error occurred: {e}")
 
     lines = map_string.splitlines()
-    size, start, end = lines[:3]
+    size_string, start_string, end_string = lines[:3]
+
+    size_string_split = size_string.split()
+    if len(size_string_split) < 2:
+        print("Error:, map size must have 2 coordinates")
+        sys.exit()
+    size = (size_string_split[0], size_string_split[1])
+
+    start_string_split = start_string.split()
+    if len(start_string_split) < 2:
+        print("Error:, start position must have 2 coordinates")
+        sys.exit()
+    start = (start_string_split[0], start_string_split[1])
+
+    end_string_split = end_string.split()
+    if len(end_string_split) < 2:
+        print("Error:, end position must have 2 coordinates")
+        sys.exit()
+    end = (end_string_split[0], end_string_split[1])
+
     remaining_lines = lines[3:]
     map_array = [line.split() for line in remaining_lines]
-    print(map_array)
+    return size, start, end, map_array
 
 
 def pathfind(mode, map, algorithm, heuristic="euclidian"):
