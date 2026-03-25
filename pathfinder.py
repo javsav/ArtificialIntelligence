@@ -20,6 +20,7 @@ def parse_mode(arg1, arg2, arg3, arg4):
 
 
 map_string = """ """
+lines = None
 
 
 def parse_map():
@@ -28,9 +29,15 @@ def parse_map():
             map_string = file.read()
     except FileNotFoundError:
         print(f"Error: The file '{sys.argv[2]}' was not found.")
+        sys.exit(1)
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    print(map_string)
+
+    lines = map_string.splitlines()
+    size, start, end = lines[:3]
+    remaining_lines = lines[3:]
+    map_array = [line.split() for line in remaining_lines]
+    print(map_array)
 
 
 def pathfind(mode, map, algorithm, heuristic="euclidian"):
