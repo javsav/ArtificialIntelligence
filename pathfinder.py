@@ -3,6 +3,8 @@ from collections import deque
 
 import numpy as np
 
+visit_count = 0
+
 if len(sys.argv) < 5:
     print("too few arguments")
     sys.exit(1)
@@ -20,19 +22,59 @@ def parse_mode(arg1, arg2, arg3, arg4):
             )
 
 
+def add_surrounding_nodes_to_deque(map, position, deque, size, visited):
+    # check above
+    if (
+        (position[0] - 1) > -1
+        and map[position[0] - 1][position[1]]
+        and not visited[position[0] - 1][position[1]]
+    ):
+        deque.appendleft((position[0] - 1, position[1]))
+
+    # check below
+    if (
+        (position[0] + 1) < size[0]
+        and map[position[0] + 1][position[1]]
+        and not visited[position[0] + 1][position[1]]
+    ):
+        deque.appendleft((position[0] + 1, position[1]))
+
+    # check to left
+    if (
+        (position[1] - 1) > -1
+        and map[position[0]][position[1] - 1]
+        and not visited[position[0]][position[1] - 1]
+    ):
+        deque.appendleft((position[0], position[1] - 1))
+
+    # check to right
+    if (
+        (position[1] + 1) < size[1]
+        and map[position[0]][position[1] + 1]
+        and not visited[position[0]][position[1] + 1]
+    ):
+        deque.appendleft((position[0], position[1] + 1))
+
+
 def breadth_first(map, size, start, end):
     to_visit = deque()
+    to_visit.appendleft(start)
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             visited[i][j] = False
-    print(visited)
-    closed = np.ones((size[0], size[1]), dtype=bool)
-    adjustRow = {-1, 0, 1, 0}
-    adjustCol = {0, 1, 0, -1}
 
-    visited[start[0], start[1]] = True
-    # if start == (1,1) or size
+    closed = np.ones((size[0], size[1]), dtype=bool)
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            closed[i][j] = False
+
+    while to_visit:
+        current_node = to_visit.pop()
+        add_surrounding_nodes_to_deque(map, current_node, to_visit, size, visited)
+    temp_visit_count = visit_count
+    visit_count = 0
+    return temp_visit_count
 
 
 def parse_map():
