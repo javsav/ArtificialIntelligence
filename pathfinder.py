@@ -1,7 +1,7 @@
 import copy
 import sys
 from collections import deque
-
+import heapq
 import numpy as np
 
 visit_count = 0
@@ -26,49 +26,71 @@ def parse_mode(arg1, arg2, arg3, arg4):
 
 
 def add_surrounding_nodes_to_fringe(
-    map, position, fringe, size, visited, previous_node_map
+    map, position, fringe, size, visited, previous_node_map, algorithm
 ):
     global visit_count
     # check above
+    adjacent_node = (position[0] - 1, position[1])
     if (
-        (position[0] - 1) > -1
-        and map[position[0] - 1][position[1]]
+        adjacent_node[0] > -1
+        and map[adjacent_node]
         #and not visited[position[0] - 1][position[1]]
     ):
-        fringe.appendleft((position[0] - 1, position[1]))
-        if (position[0] - 1, position[1]) not in previous_node_map:
-            previous_node_map[(position[0] - 1, position[1])] = position
+        if algorithm == "BFS":
+            fringe.appendleft(adjacent_node)
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
+        elif algorithm == "UCS":
+            heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
 
     # check below
-
-    if ((position[0] + 1) < size[0]
-        and map[position[0] + 1][position[1]]
+    adjacent_node = (position[0] + 1, position[1])
+    if (adjacent_node[0] < size[0]
+        and map[adjacent_node]
         #and not visited[position[0] + 1][position[1]]
     ):
-        fringe.appendleft((position[0] + 1, position[1]))
-        if (position[0] + 1, position[1]) not in previous_node_map:
-            previous_node_map[(position[0] + 1, position[1])] = position
-
+        if algorithm == "BFS":
+            fringe.appendleft(adjacent_node)
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
+        elif algorithm == "UCS":
+            heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
 
     # check to left
+    adjacent_node = (position[0], position[1] - 1)
     if (
-        (position[1] - 1) > -1
-        and map[position[0]][position[1] - 1]
+        (adjacent_node[1]) > -1
+        and map[adjacent_node]
         #and not visited[position[0]][position[1] - 1]
     ):
-        fringe.appendleft((position[0], position[1] - 1))
-        if (position[0], position[1] - 1) not in previous_node_map:
-            previous_node_map[(position[0], position[1] - 1)] = position
+        if algorithm == "BFS":
+            fringe.appendleft(adjacent_node)
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
+        elif algorithm == "UCS":
+            heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
 
     # check to right
+    adjacent_node = (position[0], position[1] + 1)
     if (
-        (position[1] + 1) < size[1]
-        and map[position[0]][position[1] + 1]
+        (adjacent_node[1]) < size[1]
+        and map[adjacent_node]
         #and not visited[position[0]][position[1] + 1]
     ):
-        fringe.appendleft((position[0], position[1] + 1))
-        if (position[0], position[1] + 1) not in previous_node_map:
-            previous_node_map[(position[0], position[1] + 1)] = position
+        if algorithm == "BFS":
+            fringe.appendleft(adjacent_node)
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
+        elif algorithm == "UCS":
+            heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+            if (adjacent_node) not in previous_node_map:
+                previous_node_map[adjacent_node] = position
 
 
 def breadth_first(map, size, start, end, map_original, mode):
@@ -86,10 +108,6 @@ def breadth_first(map, size, start, end, map_original, mode):
 
     path = copy.deepcopy(map_original)
 
-    closed = np.ones((size[0], size[1]), dtype=bool)
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            closed[i][j] = False
     previous_node_map = {}
     while to_visit:
         global visit_count
@@ -101,7 +119,7 @@ def breadth_first(map, size, start, end, map_original, mode):
             continue
         visited[current_node] = True
         add_surrounding_nodes_to_fringe(
-            map, current_node, to_visit, size, visited, previous_node_map
+            map, current_node, to_visit, size, visited, previous_node_map, "BFS"
         )
 
         if not first_visit[current_node]:
@@ -123,6 +141,101 @@ def breadth_first(map, size, start, end, map_original, mode):
         print("\n", end="")
     return path, num_visits, visit_count, first_visit, last_visit
 
+def add_surrounding_nodes_to_fringe_ucs(
+    map, current_node, fringe, size, visited, previous_node_map, algorithm
+):
+    position = current_node[1]
+    global visit_count
+    # check above
+    adjacent_node = (position[0] - 1, position[1])
+    if (
+        adjacent_node[0] > -1
+        and map[adjacent_node]
+        #and not visited[position[0] - 1][position[1]]
+    ):
+        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        if (adjacent_node) not in previous_node_map:
+            previous_node_map[adjacent_node] = position
+
+    # check below
+    adjacent_node = (position[0] + 1, position[1])
+    if (adjacent_node[0] < size[0]
+        and map[adjacent_node]
+        #and not visited[position[0] + 1][position[1]]
+    ):
+        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        if (adjacent_node) not in previous_node_map:
+            previous_node_map[adjacent_node] = position
+
+    # check to left
+    adjacent_node = (position[0], position[1] - 1)
+    if (
+        (adjacent_node[1]) > -1
+        and map[adjacent_node]
+        #and not visited[position[0]][position[1] - 1]
+    ):
+        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        if (adjacent_node) not in previous_node_map:
+            previous_node_map[adjacent_node] = position
+
+    # check to right
+    adjacent_node = (position[0], position[1] + 1)
+    if (
+        (adjacent_node[1]) < size[1]
+        and map[adjacent_node]
+        #and not visited[position[0]][position[1] + 1]
+    ):
+        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        if (adjacent_node) not in previous_node_map:
+            previous_node_map[adjacent_node] = position
+
+def uniform_cost(map, size, start, end, map_original, mode):
+    to_visit = [(map[start], start)]
+    visited = np.ones((size[0], size[1]), dtype=bool)
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            visited[i][j] = False
+
+    num_visits = np.zeros((size[0], size[1]), dtype=int)
+
+    first_visit = np.zeros((size[0], size[1]), dtype=int)
+    last_visit = np.zeros((size[0], size[1]), dtype=int)
+
+    path = copy.deepcopy(map_original)
+    previous_node_map = {}
+    current_cost = 0
+    while to_visit:
+        global visit_count
+        visit_count = visit_count + 1
+        current_node_tuple = heapq.heappop(to_visit)
+        current_cost += current_node_tuple[0]
+        last_visit[current_node_tuple[1]] = visit_count
+        num_visits[current_node_tuple[1]] += 1
+        if visited[current_node_tuple[1]]:
+            continue
+        visited[current_node_tuple[1]] = True
+        add_surrounding_nodes_to_fringe_ucs(
+            map, current_node_tuple, to_visit, size, visited, previous_node_map, "UCS"
+        )
+
+        if not first_visit[current_node_tuple[1]]:
+            first_visit[current_node_tuple[1]] = visit_count
+        if current_node_tuple[1] == end:
+            break
+    path[end[0]][end[1]] = "*"
+    while end != start:
+        x = previous_node_map[end][0]
+        y = previous_node_map[end][1]
+        path[x][y] = "*"
+        end = previous_node_map[end]
+    path[start[0]][start[1]] = "*"
+    if mode == "DEBUG":
+        print("path:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(path[i][j], end=" ")
+        print("\n", end="")
+    return path, num_visits, visit_count, first_visit, last_visit
 
 def parse_map():
     map_string = """ """
@@ -216,8 +329,49 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
     elif algorithm == "UCS":
-        print("Not yet implemented")
-        sys.exit()
+        path, num_visits, visit_count, first_visit, last_visit = uniform_cost(
+            map, size, start, end, map_str, mode
+        )
+        if mode == "DEBUG":
+            x_string = 'X'
+            dot_string = "."
+            visit_size = len(str(abs(visit_count)))
+            print("#visits:")
+            max_num_visits = 0
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    if num_visits[i][j] > max_num_visits:
+                        max_num_visits = num_visits[i][j]
+            max_num_visits_digits = 0
+            while max_num_visits > 0:
+                max_num_visits //= 10
+                max_num_visits_digits += 1
+
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    if num_visits[i][j] == 0 and map_str[i][j] == "X":
+                        print(f"{x_string:{max_num_visits_digits}s}", end=" ")
+                    elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                     print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
+                    else:
+                        print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
+                print("\n", end="")
+            print("first visit:")
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    if first_visit[i][j] == 0:
+                        print(f"{x_string:{visit_size}s}", end=" ")
+                    else:
+                        print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
+                print("\n", end="")
+            print("last visit:")
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    if last_visit[i][j] == 0:
+                        print(f"{x_string:{visit_size}s}", end=" ")
+                    else:
+                        print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
+                print("\n", end="")
     elif algorithm == "A*":
         print("Not yet implemented")
         sys.exit()
