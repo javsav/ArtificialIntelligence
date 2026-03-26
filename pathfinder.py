@@ -112,7 +112,6 @@ def breadth_first(map, size, start, end, map_original):
         path[x][y] = "*"
         end = previous_node_map[end]
     path[start[0]][start[1]] = "*"
-    print("path:")
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             print(path[i][j], end=" ")
@@ -172,6 +171,7 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             map, size, start, end, map_str
         )
         if mode == "DEBUG":
+            print("path:")
             visit_size = len(str(abs(visit_count)))
             print("#visits:")
             for i in range(0, size[0], 1):
