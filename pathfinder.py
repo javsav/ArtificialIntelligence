@@ -142,9 +142,10 @@ def breadth_first(map, size, start, end, map_original, mode):
     return path, num_visits, visit_count, first_visit, last_visit
 
 def add_surrounding_nodes_to_fringe_ucs(
-    map, current_node, fringe, size, visited, previous_node_map, algorithm
+    map, current_node, fringe, size, visited, previous_node_map, current_cost
 ):
     position = current_node[1]
+    cost = current_node[0]
     global visit_count
     # check above
     adjacent_node = (position[0] - 1, position[1])
@@ -215,7 +216,7 @@ def uniform_cost(map, size, start, end, map_original, mode):
             continue
         visited[current_node_tuple[1]] = True
         add_surrounding_nodes_to_fringe_ucs(
-            map, current_node_tuple, to_visit, size, visited, previous_node_map, "UCS"
+            map, current_node_tuple, to_visit, size, visited, previous_node_map, current_cost
         )
 
         if not first_visit[current_node_tuple[1]]:
