@@ -4,7 +4,7 @@ from collections import deque
 
 import numpy as np
 
-visit_count = 0
+visit_count = 1
 
 if len(sys.argv) < 4:
     print("too few arguments")
@@ -30,50 +30,39 @@ def add_surrounding_nodes_to_fringe(
 ):
     global visit_count
     # check above
-    if (
-        (position[0] - 1) > -1
-        and map[position[0] - 1][position[1]]
-        and not visited[position[0] - 1][position[1]]
-    ):
-        fringe.appendleft((position[0] - 1, position[1]))
-        if (position[0] - 1, position[1]) not in previous_node_map:
-            previous_node_map[(position[0] - 1, position[1])] = position
-    elif (position[0] - 1) > -1 and visited[position[0] - 1][position[1]]:
-        visit_count += 1
+    if (position[0] - 1) > -1 and map[position[0] - 1][position[1]]:
+        visit_count = visit_count + 1
+        if not visited[position[0] - 1][position[1]]:
+            fringe.appendleft((position[0] - 1, position[1]))
+            if (position[0] - 1, position[1]) not in previous_node_map:
+                previous_node_map[(position[0] - 1, position[1])] = position
 
     # check below
-    if (
-        (position[0] + 1) < size[0]
-        and map[position[0] + 1][position[1]]
-        and not visited[position[0] + 1][position[1]]
-    ):
-        fringe.appendleft((position[0] + 1, position[1]))
-        if (position[0] + 1, position[1]) not in previous_node_map:
-            previous_node_map[(position[0] + 1, position[1])] = position
-    elif (position[0] + 1) < size[0] and visited[position[0] + 1][position[1]]:
-        visit_count += 1
+
+    if (position[0] + 1) < size[0] and map[position[0] + 1][position[1]]:
+        visit_count = visit_count + 1
+        if not visited[position[0] + 1][position[1]]:
+            fringe.appendleft((position[0] + 1, position[1]))
+            if (position[0] + 1, position[1]) not in previous_node_map:
+                previous_node_map[(position[0] + 1, position[1])] = position
+
+
     # check to left
-    if (
-        (position[1] - 1) > -1
-        and map[position[0]][position[1] - 1]
-        and not visited[position[0]][position[1] - 1]
-    ):
-        fringe.appendleft((position[0], position[1] - 1))
-        if (position[0], position[1 - 1]) not in previous_node_map:
-            previous_node_map[(position[0], position[1] - 1)] = position
-    elif (position[1] - 1) > -1 and visited[position[0]][position[1] - 1]:
-        visit_count += 1
+    if (position[1] - 1) > -1 and map[position[0]][position[1] - 1]:
+        visit_count = visit_count + 1
+        if not visited[position[0]][position[1] - 1]:
+            fringe.appendleft((position[0], position[1] - 1))
+            if (position[0], position[1 - 1]) not in previous_node_map:
+                previous_node_map[(position[0], position[1] - 1)] = position
+
     # check to right
-    if (
-        (position[1] + 1) < size[1]
-        and map[position[0]][position[1] + 1]
-        and not visited[position[0]][position[1] + 1]
-    ):
-        fringe.appendleft((position[0], position[1] + 1))
-        if (position[0], position[1 - 1]) not in previous_node_map:
-            previous_node_map[(position[0], position[1] + 1)] = position
-    elif (position[1] + 1) < size[1] and visited[position[0]][position[1] + 1]:
-        visit_count += 1
+    if (position[1] + 1) < size[1] and map[position[0]][position[1] + 1]:
+        visit_count = visit_count + 1
+        if not visited[position[0]][position[1] + 1]:
+            fringe.appendleft((position[0], position[1] + 1))
+            if (position[0], position[1 - 1]) not in previous_node_map:
+                previous_node_map[(position[0], position[1] + 1)] = position
+
 
 
 def breadth_first(map, size, start, end, map_original):
@@ -98,6 +87,7 @@ def breadth_first(map, size, start, end, map_original):
     previous_node_map = {}
     while to_visit:
         global visit_count
+        #visit_count = visit_count + 1
         current_node = to_visit.pop()
         last_visit[current_node] = visit_count
         visit_num[current_node] += 1
@@ -107,7 +97,7 @@ def breadth_first(map, size, start, end, map_original):
         add_surrounding_nodes_to_fringe(
             map, current_node, to_visit, size, visited, previous_node_map
         )
-        visit_count = visit_count + 1
+
         if not first_visit[current_node]:
             first_visit[current_node] = visit_count
         if current_node == end:
