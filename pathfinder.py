@@ -35,7 +35,8 @@ def add_surrounding_nodes_to_fringe(
         and not visited[position[0] - 1][position[1]]
     ):
         fringe.appendleft((position[0] - 1, position[1]))
-        previous_node_map[(position[0] - 1, position[1])] = position
+        if not previous_node_map[(position[0] - 1, position[1])]:
+            previous_node_map[(position[0] - 1, position[1])] = position
 
     # check below
     if (
@@ -44,7 +45,8 @@ def add_surrounding_nodes_to_fringe(
         and not visited[position[0] + 1][position[1]]
     ):
         fringe.appendleft((position[0] + 1, position[1]))
-        previous_node_map[(position[0] + 1, position[1])] = position
+        if not previous_node_map[(position[0] + 1, position[1])]:
+            previous_node_map[(position[0] + 1, position[1])] = position
 
     # check to left
     if (
@@ -53,7 +55,8 @@ def add_surrounding_nodes_to_fringe(
         and not visited[position[0]][position[1] - 1]
     ):
         fringe.appendleft((position[0], position[1] - 1))
-        previous_node_map[(position[0], position[1] - 1)] = position
+        if not previous_node_map[(position[0], position[1 - 1])]:
+            previous_node_map[(position[0], position[1] - 1)] = position
 
     # check to right
     if (
@@ -62,7 +65,8 @@ def add_surrounding_nodes_to_fringe(
         and not visited[position[0]][position[1] + 1]
     ):
         fringe.appendleft((position[0], position[1] + 1))
-        previous_node_map[(position[0], position[1] + 1)] = position
+        if not previous_node_map[(position[0], position[1 + 1])]:
+            previous_node_map[(position[0], position[1] + 1)] = position
 
 
 def breadth_first(map, size, start, end, map_original):
