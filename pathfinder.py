@@ -4,7 +4,7 @@ from collections import deque
 
 import numpy as np
 
-visit_count = 1
+visit_count = 0
 
 if len(sys.argv) < 4:
     print("too few arguments")
@@ -30,42 +30,48 @@ def add_surrounding_nodes_to_fringe(
 ):
     global visit_count
     # check above
-    if (position[0] - 1) > -1 and map[position[0] - 1][position[1]]:
-        visit_count = visit_count + 1
-        if not visited[position[0] - 1][position[1]]:
-            fringe.appendleft((position[0] - 1, position[1]))
-            if (position[0] - 1, position[1]) not in previous_node_map:
-                previous_node_map[(position[0] - 1, position[1])] = position
+    if (
+        (position[0] - 1) > -1
+        and map[position[0] - 1][position[1]]
+        #and not visited[position[0] - 1][position[1]]
+    ):
+        fringe.appendleft((position[0] - 1, position[1]))
+        if (position[0] - 1, position[1]) not in previous_node_map:
+            previous_node_map[(position[0] - 1, position[1])] = position
 
     # check below
 
-    if (position[0] + 1) < size[0] and map[position[0] + 1][position[1]]:
-        visit_count = visit_count + 1
-        if not visited[position[0] + 1][position[1]]:
-            fringe.appendleft((position[0] + 1, position[1]))
-            if (position[0] + 1, position[1]) not in previous_node_map:
-                previous_node_map[(position[0] + 1, position[1])] = position
+    if ((position[0] + 1) < size[0]
+        and map[position[0] + 1][position[1]]
+        #and not visited[position[0] + 1][position[1]]
+    ):
+        fringe.appendleft((position[0] + 1, position[1]))
+        if (position[0] + 1, position[1]) not in previous_node_map:
+            previous_node_map[(position[0] + 1, position[1])] = position
 
 
     # check to left
-    if (position[1] - 1) > -1 and map[position[0]][position[1] - 1]:
-        visit_count = visit_count + 1
-        if not visited[position[0]][position[1] - 1]:
-            fringe.appendleft((position[0], position[1] - 1))
-            if (position[0], position[1 - 1]) not in previous_node_map:
-                previous_node_map[(position[0], position[1] - 1)] = position
+    if (
+        (position[1] - 1) > -1
+        and map[position[0]][position[1] - 1]
+        #and not visited[position[0]][position[1] - 1]
+    ):
+        fringe.appendleft((position[0], position[1] - 1))
+        if (position[0], position[1] - 1) not in previous_node_map:
+            previous_node_map[(position[0], position[1] - 1)] = position
 
     # check to right
-    if (position[1] + 1) < size[1] and map[position[0]][position[1] + 1]:
-        visit_count = visit_count + 1
-        if not visited[position[0]][position[1] + 1]:
-            fringe.appendleft((position[0], position[1] + 1))
-            if (position[0], position[1 - 1]) not in previous_node_map:
-                previous_node_map[(position[0], position[1] + 1)] = position
+    if (
+        (position[1] + 1) < size[1]
+        and map[position[0]][position[1] + 1]
+        #and not visited[position[0]][position[1] + 1]
+    ):
+        fringe.appendleft((position[0], position[1] + 1))
+        if (position[0], position[1] + 1) not in previous_node_map:
+            previous_node_map[(position[0], position[1] + 1)] = position
 
 
-
-def breadth_first(map, size, start, end, map_original):
+def breadth_first(map, size, start, end, map_original, mode):
     to_visit = deque()
     to_visit.appendleft(start)
     visited = np.ones((size[0], size[1]), dtype=bool)
@@ -87,7 +93,7 @@ def breadth_first(map, size, start, end, map_original):
     previous_node_map = {}
     while to_visit:
         global visit_count
-        #visit_count = visit_count + 1
+        visit_count = visit_count + 1
         current_node = to_visit.pop()
         last_visit[current_node] = visit_count
         visit_num[current_node] += 1
@@ -109,6 +115,8 @@ def breadth_first(map, size, start, end, map_original):
         path[x][y] = "*"
         end = previous_node_map[end]
     path[start[0]][start[1]] = "*"
+    if mode == "DEBUG":
+        print("path:")
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             print(path[i][j], end=" ")
@@ -165,10 +173,9 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
     size, start, end, map, map_str = parse_map()
     if algorithm == "BFS":
         path, visit_num, visit_count, first_visit, last_visit = breadth_first(
-            map, size, start, end, map_str
+            map, size, start, end, map_str, mode
         )
         if mode == "DEBUG":
-            print("path:")
             visit_size = len(str(abs(visit_count)))
             print("#visits:")
             for i in range(0, size[0], 1):
