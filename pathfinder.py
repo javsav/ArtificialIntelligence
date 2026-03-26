@@ -28,6 +28,7 @@ def parse_mode(arg1, arg2, arg3, arg4):
 def add_surrounding_nodes_to_fringe(
     map, position, fringe, size, visited, previous_node_map
 ):
+    global visit_count
     # check above
     if (
         (position[0] - 1) > -1
@@ -37,6 +38,8 @@ def add_surrounding_nodes_to_fringe(
         fringe.appendleft((position[0] - 1, position[1]))
         if (position[0] - 1, position[1]) not in previous_node_map:
             previous_node_map[(position[0] - 1, position[1])] = position
+    elif (position[0] - 1) > -1 and visited[position[0] - 1][position[1]]:
+        visit_count += 1
 
     # check below
     if (
@@ -47,7 +50,8 @@ def add_surrounding_nodes_to_fringe(
         fringe.appendleft((position[0] + 1, position[1]))
         if (position[0] + 1, position[1]) not in previous_node_map:
             previous_node_map[(position[0] + 1, position[1])] = position
-
+    elif (position[0] + 1) < size[0] and visited[position[0] + 1][position[1]]:
+        visit_count += 1
     # check to left
     if (
         (position[1] - 1) > -1
@@ -57,7 +61,8 @@ def add_surrounding_nodes_to_fringe(
         fringe.appendleft((position[0], position[1] - 1))
         if (position[0], position[1 - 1]) not in previous_node_map:
             previous_node_map[(position[0], position[1] - 1)] = position
-
+    elif (position[1] - 1) > -1 and visited[position[0]][position[1] - 1]:
+        visit_count += 1
     # check to right
     if (
         (position[1] + 1) < size[1]
@@ -67,6 +72,8 @@ def add_surrounding_nodes_to_fringe(
         fringe.appendleft((position[0], position[1] + 1))
         if (position[0], position[1 - 1]) not in previous_node_map:
             previous_node_map[(position[0], position[1] + 1)] = position
+    elif (position[1] + 1) < size[1] and visited[position[0]][position[1] + 1]:
+        visit_count += 1
 
 
 def breadth_first(map, size, start, end, map_original):
