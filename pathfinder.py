@@ -1,3 +1,4 @@
+import copy
 import sys
 from collections import deque
 
@@ -22,14 +23,17 @@ def parse_mode(arg1, arg2, arg3, arg4):
             )
 
 
-def add_surrounding_nodes_to_deque(map, position, deque, size, visited):
+def add_surrounding_nodes_to_fringe(
+    map, position, fringe, size, visited, previous_node_map
+):
     # check above
     if (
         (position[0] - 1) > -1
         and map[position[0] - 1][position[1]]
         and not visited[position[0] - 1][position[1]]
     ):
-        deque.appendleft((position[0] - 1, position[1]))
+        fringe.appendleft((position[0] - 1, position[1]))
+        previous_node_map[(position[0] - 1, position[1])] = position
 
     # check below
     if (
@@ -37,7 +41,8 @@ def add_surrounding_nodes_to_deque(map, position, deque, size, visited):
         and map[position[0] + 1][position[1]]
         and not visited[position[0] + 1][position[1]]
     ):
-        deque.appendleft((position[0] + 1, position[1]))
+        fringe.appendleft((position[0] + 1, position[1]))
+        previous_node_map[(position[0] + 1, position[1])] = position
 
     # check to left
     if (
@@ -45,7 +50,8 @@ def add_surrounding_nodes_to_deque(map, position, deque, size, visited):
         and map[position[0]][position[1] - 1]
         and not visited[position[0]][position[1] - 1]
     ):
-        deque.appendleft((position[0], position[1] - 1))
+        fringe.appendleft((position[0], position[1] - 1))
+        previous_node_map[(position[0], position[1] - 1)] = position
 
     # check to right
     if (
@@ -53,10 +59,11 @@ def add_surrounding_nodes_to_deque(map, position, deque, size, visited):
         and map[position[0]][position[1] + 1]
         and not visited[position[0]][position[1] + 1]
     ):
-        deque.appendleft((position[0], position[1] + 1))
+        fringe.appendleft((position[0], position[1] + 1))
+        previous_node_map[(position[0], position[1] + 1)] = position
 
 
-def breadth_first(map, size, start, end):
+def breadth_first(map, size, start, end, map_original):
     to_visit = deque()
     to_visit.appendleft(start)
     visited = np.ones((size[0], size[1]), dtype=bool)
@@ -64,17 +71,65 @@ def breadth_first(map, size, start, end):
         for j in range(0, size[1], 1):
             visited[i][j] = False
 
+    visit_num = np.zeros((size[0], size[1]), dtype=int)
+
+    first_visit = np.zeros((size[0], size[1]), dtype=int)
+    last_visit = np.zeros((size[0], size[1]), dtype=int)
+
+    path = copy.deepcopy(map_original)
+
     closed = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             closed[i][j] = False
-
+    previous_node_map = {}
     while to_visit:
+        global visit_count
         current_node = to_visit.pop()
-        add_surrounding_nodes_to_deque(map, current_node, to_visit, size, visited)
-    temp_visit_count = visit_count
-    visit_count = 0
-    return temp_visit_count
+        last_visit[current_node] = visit_count
+        visit_num[current_node] += 1
+        if visited[current_node]:
+            continue
+        visited[current_node] = True
+        add_surrounding_nodes_to_fringe(
+            map, current_node, to_visit, size, visited, previous_node_map
+        )
+        visit_count = visit_count + 1
+        if not first_visit[current_node]:
+            first_visit[current_node] = visit_count
+        if current_node == end:
+            break
+    path[end[0]][end[1]] = "*"
+    while end != start:
+        x = previous_node_map[end][0]
+        y = previous_node_map[end][1]
+        path[x][y] = "*"
+        end = previous_node_map[end]
+    path[start[0]][start[1]] = "*"
+    # temp_visit_count = visit_count
+    # visit_count = 0
+    visit_size = len(str(abs(visit_count)))
+    print("path:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(path[i][j], end=" ")
+        print("\n", end="")
+    print("#visits:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(f"{visit_num[i][j]:{visit_size}d}", end=" ")
+        print("\n", end="")
+    print("first visit:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
+        print("\n", end="")
+    print("last visit:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
+        print("\n", end="")
+    return visit_num, visit_count, first_visit, last_visit
 
 
 def parse_map():
@@ -101,13 +156,13 @@ def parse_map():
     if len(start_string_split) < 2:
         print("Error:, start position must have 2 coordinates")
         sys.exit()
-    start = (int(start_string_split[0]), int(start_string_split[1]))
+    start = (int(start_string_split[0]) - 1, int(start_string_split[1]) - 1)
 
     end_string_split = end_string.split()
     if len(end_string_split) < 2:
         print("Error:, end position must have 2 coordinates")
         sys.exit()
-    end = (int(end_string_split[0]), int(end_string_split[1]))
+    end = (int(end_string_split[0]) - 1, int(end_string_split[1]) - 1)
 
     remaining_lines = lines[3:]
     map_array = [line.split() for line in remaining_lines]
@@ -119,15 +174,15 @@ def parse_map():
             else:
                 map_array_int[i][j] = int(map_array[i][j])
 
-    return size, start, end, map_array_int
+    return size, start, end, map_array_int, map_array
 
 
 def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
     if mode == "DEBUG":
         print("debug mode")
-        size, start, end, map = parse_map()
+        size, start, end, map, map_str = parse_map()
         print(map)
-        breadth_first(map, size, start, end)
+        breadth_first(map, size, start, end, map_str)
     else:
         size, start, end, map = parse_map()
 
