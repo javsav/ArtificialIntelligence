@@ -6,9 +6,11 @@ import numpy as np
 
 visit_count = 0
 
-if len(sys.argv) < 5:
+if len(sys.argv) < 4:
     print("too few arguments")
     sys.exit(1)
+elif len(sys.argv) < 5:
+    sys.argv.append("euclidian")
 
 
 def parse_mode(arg1, arg2, arg3, arg4):
@@ -106,30 +108,12 @@ def breadth_first(map, size, start, end, map_original):
         path[x][y] = "*"
         end = previous_node_map[end]
     path[start[0]][start[1]] = "*"
-    # temp_visit_count = visit_count
-    # visit_count = 0
-    visit_size = len(str(abs(visit_count)))
     print("path:")
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             print(path[i][j], end=" ")
         print("\n", end="")
-    print("#visits:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            print(f"{visit_num[i][j]:{visit_size}d}", end=" ")
-        print("\n", end="")
-    print("first visit:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
-        print("\n", end="")
-    print("last visit:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
-        print("\n", end="")
-    return visit_num, visit_count, first_visit, last_visit
+    return path, visit_num, visit_count, first_visit, last_visit
 
 
 def parse_map():
@@ -178,13 +162,37 @@ def parse_map():
 
 
 def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
-    if mode == "DEBUG":
-        print("debug mode")
-        size, start, end, map, map_str = parse_map()
-        print(map)
-        breadth_first(map, size, start, end, map_str)
+    size, start, end, map, map_str = parse_map()
+    if algorithm == "BFS":
+        path, visit_num, visit_count, first_visit, last_visit = breadth_first(
+            map, size, start, end, map_str
+        )
+        if mode == "DEBUG":
+            visit_size = len(str(abs(visit_count)))
+            print("#visits:")
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    print(f"{visit_num[i][j]:{visit_size}d}", end=" ")
+                print("\n", end="")
+            print("first visit:")
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
+                print("\n", end="")
+            print("last visit:")
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
+                print("\n", end="")
+    elif algorithm == "UCS":
+        print("Not yet implemented")
+        sys.exit()
+    elif algorithm == "A*":
+        print("Not yet implemented")
+        sys.exit()
     else:
-        size, start, end, map = parse_map()
+        print("Valid algorithms are BFS, UCS or A* (case insensitive)")
+        sys.exit()
 
 
 parse_mode(sys.argv[1].upper(), sys.argv[2], sys.argv[3].upper(), sys.argv[4].upper())
