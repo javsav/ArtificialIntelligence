@@ -180,17 +180,26 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             print("#visits:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    print(f"{visit_num[i][j]:{visit_size}d}", end=" ")
+                    if visit_num[i][j] == 0:
+                        print(f"X:{visit_size}d", end=" ")
+                    else:
+                        print(f"{visit_num[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
             print("first visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
+                    if first_visit[i][j] == 0:
+                        print(f"X:{visit_size}d", end=" ")
+                    else:
+                        print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
             print("last visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
+                    if last_visit[i][j] == 0:
+                        print(f"X:{visit_size}d", end=" ")
+                    else:
+                        print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
     elif algorithm == "UCS":
         print("Not yet implemented")
