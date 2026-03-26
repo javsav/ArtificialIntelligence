@@ -79,7 +79,7 @@ def breadth_first(map, size, start, end, map_original, mode):
         for j in range(0, size[1], 1):
             visited[i][j] = False
 
-    visit_num = np.zeros((size[0], size[1]), dtype=int)
+    num_visits = np.zeros((size[0], size[1]), dtype=int)
 
     first_visit = np.zeros((size[0], size[1]), dtype=int)
     last_visit = np.zeros((size[0], size[1]), dtype=int)
@@ -96,7 +96,7 @@ def breadth_first(map, size, start, end, map_original, mode):
         visit_count = visit_count + 1
         current_node = to_visit.pop()
         last_visit[current_node] = visit_count
-        visit_num[current_node] += 1
+        num_visits[current_node] += 1
         if visited[current_node]:
             continue
         visited[current_node] = True
@@ -121,7 +121,7 @@ def breadth_first(map, size, start, end, map_original, mode):
         for j in range(0, size[1], 1):
             print(path[i][j], end=" ")
         print("\n", end="")
-    return path, visit_num, visit_count, first_visit, last_visit
+    return path, num_visits, visit_count, first_visit, last_visit
 
 
 def parse_map():
@@ -172,24 +172,38 @@ def parse_map():
 def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
     size, start, end, map, map_str = parse_map()
     if algorithm == "BFS":
-        path, visit_num, visit_count, first_visit, last_visit = breadth_first(
+        path, num_visits, visit_count, first_visit, last_visit = breadth_first(
             map, size, start, end, map_str, mode
         )
         if mode == "DEBUG":
+            x_string = 'X'
+            dot_string = "."
             visit_size = len(str(abs(visit_count)))
             print("#visits:")
+            max_num_visits = 0
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    if visit_num[i][j] == 0:
-                        print(f"X:{visit_size}d", end=" ")
+                    if num_visits[i][j] > max_num_visits:
+                        max_num_visits = num_visits[i][j]
+            max_num_visits_digits = 0
+            while max_num_visits > 0:
+                max_num_visits //= 10
+                max_num_visits_digits += 1
+
+            for i in range(0, size[0], 1):
+                for j in range(0, size[1], 1):
+                    if num_visits[i][j] == 0 and map_str[i][j] == "X":
+                        print(f"{x_string:{max_num_visits_digits}s}", end=" ")
+                    elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                     print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
                     else:
-                        print(f"{visit_num[i][j]:{visit_size}d}", end=" ")
+                        print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
                 print("\n", end="")
             print("first visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
                     if first_visit[i][j] == 0:
-                        print(f"X:{visit_size}d", end=" ")
+                        print(f"{x_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
@@ -197,7 +211,7 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
                     if last_visit[i][j] == 0:
-                        print(f"X:{visit_size}d", end=" ")
+                        print(f"{x_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
