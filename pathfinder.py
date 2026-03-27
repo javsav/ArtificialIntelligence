@@ -658,6 +658,8 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                 for j in range(0, size[1], 1):
                     if first_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
+                    elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                        print(f"{dot_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
@@ -666,6 +668,8 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                 for j in range(0, size[1], 1):
                     if last_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
+                    elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                        print(f"{dot_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
@@ -710,6 +714,8 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                 for j in range(0, size[1], 1):
                     if first_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
+                    elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                        print(f"{dot_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
@@ -718,11 +724,13 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                 for j in range(0, size[1], 1):
                     if last_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
+                    elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                        print(f"{dot_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
     else:
-        print("Valid algorithms are BFS, UCS or A* (case insensitive)")
+        print("Valid algorithms are BFS, UCS or ASTAR (case insensitive)")
         sys.exit()
 
 
