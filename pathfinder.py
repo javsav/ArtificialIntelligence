@@ -321,6 +321,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
 
@@ -331,6 +332,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
         if (adjacent_node) not in previous_node_map or (
@@ -359,6 +361,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
 
@@ -369,6 +372,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
         if (adjacent_node) not in previous_node_map or (
@@ -397,6 +401,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
 
@@ -407,6 +412,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
         if (adjacent_node) not in previous_node_map or (
@@ -435,6 +441,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
 
@@ -445,6 +452,7 @@ def add_surrounding_nodes_to_fringe_astar(
                     path_cost + euclidian_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
+                    path_cost,
                 ),
             )
         if (adjacent_node) not in previous_node_map or (
@@ -461,7 +469,7 @@ def astar(map, size, start, end, map_original, mode, heuristic):
     goal = None
     global tie_breaker
     tie_breaker = 0
-    to_visit = [(0, tie_breaker, start)]
+    to_visit = [(0, tie_breaker, start, 0)]
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
@@ -478,7 +486,7 @@ def astar(map, size, start, end, map_original, mode, heuristic):
     while to_visit:
         global visit_count
         visit_count = visit_count + 1
-        cost, _, current_node = heapq.heappop(to_visit)
+        cost, _, current_node, g_cost = heapq.heappop(to_visit)
         last_visit[current_node] = visit_count
         num_visits[current_node] += 1
         if visited[current_node]:
