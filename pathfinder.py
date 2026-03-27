@@ -223,6 +223,81 @@ def add_surrounding_nodes_to_fringe_ucs(
             previous_node_map[adjacent_node] = (path_cost, position)
 
 
+def uniform_cost(map, size, start, end, map_original, mode):
+    goal = None
+    global tie_breaker
+    tie_breaker = 0
+    to_visit = [(0, tie_breaker, start)]
+    visited = np.ones((size[0], size[1]), dtype=bool)
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            visited[i][j] = False
+
+    num_visits = np.zeros((size[0], size[1]), dtype=int)
+
+    first_visit = np.zeros((size[0], size[1]), dtype=int)
+    last_visit = np.zeros((size[0], size[1]), dtype=int)
+
+    path = copy.deepcopy(map_original)
+    previous_node_map = {}
+    while to_visit:
+        global visit_count
+        visit_count = visit_count + 1
+        cost, _, current_node = heapq.heappop(to_visit)
+        last_visit[current_node] = visit_count
+        num_visits[current_node] += 1
+        if visited[current_node]:
+            continue
+        visited[current_node] = True
+        add_surrounding_nodes_to_fringe_ucs(
+            map,
+            current_node,
+            to_visit,
+            size,
+            visited,
+            previous_node_map,
+            cost,
+        )
+
+        if not first_visit[current_node]:
+            first_visit[current_node] = visit_count
+        if current_node == end:
+            goal = True
+            break
+    if current_node != end:
+        goal = False
+        return path, num_visits, visit_count, first_visit, last_visit, goal
+    path[end[0]][end[1]] = "*"
+    while end != start:
+        cost = previous_node_map[end][0]
+        x = previous_node_map[end][1][0]
+        y = previous_node_map[end][1][1]
+        path[x][y] = "*"
+        end = previous_node_map[end][1]
+    path[start[0]][start[1]] = "*"
+    if mode == "DEBUG":
+        print("path:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(path[i][j], end=" ")
+        print("\n", end="")
+    return path, num_visits, visit_count, first_visit, last_visit, goal
+
+
+def euclidian_distance(pos1, pos2):
+    x = pos2[0] - pos1[0]
+    y = pos2[1] - pos2[1]
+    return np.sqrt(x * x + y * y)
+
+
+def manhattan_distance(pos1, pos2):
+    x1 = pos1[0]
+    x2 = pos2[0]
+    y1 = pos1[1]
+    y2 = pos2[1]
+    return abs(x2 - x1) + abs(y2 - y1)
+
+
 def add_surrounding_nodes_to_fringe_astar(
     map, current_node, fringe, size, visited, previous_node_map, cost, heuristic
 ):
@@ -334,81 +409,10 @@ def add_surrounding_nodes_to_fringe_astar(
                 )
 
 
-def uniform_cost(map, size, start, end, map_original, mode):
-    goal = None
-    to_visit = [(0, tie_breaker, start)]
-    visited = np.ones((size[0], size[1]), dtype=bool)
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            visited[i][j] = False
-
-    num_visits = np.zeros((size[0], size[1]), dtype=int)
-
-    first_visit = np.zeros((size[0], size[1]), dtype=int)
-    last_visit = np.zeros((size[0], size[1]), dtype=int)
-
-    path = copy.deepcopy(map_original)
-    previous_node_map = {}
-    while to_visit:
-        global visit_count
-        visit_count = visit_count + 1
-        cost, _, current_node = heapq.heappop(to_visit)
-        last_visit[current_node] = visit_count
-        num_visits[current_node] += 1
-        if visited[current_node]:
-            continue
-        visited[current_node] = True
-        add_surrounding_nodes_to_fringe_ucs(
-            map,
-            current_node,
-            to_visit,
-            size,
-            visited,
-            previous_node_map,
-            cost,
-        )
-
-        if not first_visit[current_node]:
-            first_visit[current_node] = visit_count
-        if current_node == end:
-            goal = True
-            break
-    if current_node != end:
-        goal = False
-        return path, num_visits, visit_count, first_visit, last_visit, goal
-    path[end[0]][end[1]] = "*"
-    while end != start:
-        cost = previous_node_map[end][0]
-        x = previous_node_map[end][1][0]
-        y = previous_node_map[end][1][1]
-        path[x][y] = "*"
-        end = previous_node_map[end][1]
-    path[start[0]][start[1]] = "*"
-    if mode == "DEBUG":
-        print("path:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            print(path[i][j], end=" ")
-        print("\n", end="")
-    return path, num_visits, visit_count, first_visit, last_visit, goal
-
-
-def euclidian_distance(pos1, pos2):
-    x = pos2[0] - pos1[0]
-    y = pos2[1] - pos2[1]
-    return np.sqrt(x * x + y * y)
-
-
-def manhattan_distance(pos1, pos2):
-    x1 = pos1[0]
-    x2 = pos2[0]
-    y1 = pos1[1]
-    y2 = pos2[1]
-    return abs(x2 - x1) + abs(y2 - y1)
-
-
 def astar(map, size, start, end, map_original, mode, heuristic):
     goal = None
+    global tie_breaker
+    tie_breaker = 0
     to_visit = [(0, tie_breaker, start)]
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
