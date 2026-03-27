@@ -499,7 +499,7 @@ def astar(map, size, start, end, map_original, mode, heuristic):
             size,
             visited,
             previous_node_map,
-            cost,
+            g_cost,
             heuristic,
             end,
         )
