@@ -314,7 +314,7 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        if heuristic == "EUCLIDIAN":
+        if heuristic == "EUCLIDEAN":
             heapq.heappush(
                 fringe,
                 (
@@ -354,7 +354,7 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        if heuristic == "EUCLIDIAN":
+        if heuristic == "EUCLIDEAN":
             heapq.heappush(
                 fringe,
                 (
@@ -394,7 +394,7 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        if heuristic == "EUCLIDIAN":
+        if heuristic == "EUCLIDEAN":
             heapq.heappush(
                 fringe,
                 (
@@ -434,7 +434,7 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        if heuristic == "EUCLIDIAN":
+        if heuristic == "EUCLIDEAN":
             heapq.heappush(
                 fringe,
                 (
@@ -674,11 +674,11 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
     elif algorithm == "ASTAR":
-        # if heuristic != "MANHATTAN" and heuristic != "EUCLIDIAN":
-        #     print(
-        #         f"Invalid heuristic: {sys.argv[4]}. Valid heuristics are euclidian or manhattan (case insensitive)"
-        #     )
-        #     sys.exit()
+        if heuristic != "MANHATTAN" and heuristic != "EUCLIDEAN":
+            print(
+                f"Invalid heuristic: {sys.argv[4]}. Valid heuristics are euclidian or manhattan (case insensitive)"
+            )
+            sys.exit()
 
         path, num_visits, visit_count, first_visit, last_visit, goal = astar(
             map, size, start, end, map_str, mode, heuristic
