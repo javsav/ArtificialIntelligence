@@ -6,7 +6,7 @@ from collections import deque
 import numpy as np
 
 visit_count = 0
-
+invalid = -1
 if len(sys.argv) < 4:
     print("too few arguments")
     sys.exit(1)
@@ -29,11 +29,11 @@ def parse_mode(arg1, arg2, arg3, arg4):
 def add_surrounding_nodes_to_fringe(
     map, position, fringe, size, visited, previous_node_map, algorithm
 ):
-    global visit_count
+    global visit_count, invalid
     # check above
     adjacent_node = (position[0] - 1, position[1])
     if (
-        adjacent_node[0] > -1 and map[adjacent_node]
+        adjacent_node[0] > -1 and map[adjacent_node] != invalid
         # and not visited[position[0] - 1][position[1]]
     ):
         if algorithm == "BFS":
@@ -48,7 +48,7 @@ def add_surrounding_nodes_to_fringe(
     # check below
     adjacent_node = (position[0] + 1, position[1])
     if (
-        adjacent_node[0] < size[0] and map[adjacent_node]
+        adjacent_node[0] < size[0] and map[adjacent_node] != invalid
         # and not visited[position[0] + 1][position[1]]
     ):
         if algorithm == "BFS":
@@ -63,7 +63,7 @@ def add_surrounding_nodes_to_fringe(
     # check to left
     adjacent_node = (position[0], position[1] - 1)
     if (
-        (adjacent_node[1]) > -1 and map[adjacent_node]
+        (adjacent_node[1]) > -1 and map[adjacent_node] != invalid
         # and not visited[position[0]][position[1] - 1]
     ):
         if algorithm == "BFS":
@@ -78,7 +78,7 @@ def add_surrounding_nodes_to_fringe(
     # check to right
     adjacent_node = (position[0], position[1] + 1)
     if (
-        (adjacent_node[1]) < size[1] and map[adjacent_node]
+        (adjacent_node[1]) < size[1] and map[adjacent_node] != invalid
         # and not visited[position[0]][position[1] + 1]
     ):
         if algorithm == "BFS":
@@ -141,7 +141,6 @@ def breadth_first(map, size, start, end, map_original, mode):
 
 
 tie_breaker = 0
-invalid = -1
 
 
 def add_surrounding_nodes_to_fringe_ucs(
