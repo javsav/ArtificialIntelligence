@@ -286,7 +286,7 @@ def uniform_cost(map, size, start, end, map_original, mode):
 
 def euclidian_distance(pos1, pos2):
     x = pos2[0] - pos1[0]
-    y = pos2[1] - pos2[1]
+    y = pos2[1] - pos1[1]
     return np.sqrt(x * x + y * y)
 
 
@@ -299,7 +299,7 @@ def manhattan_distance(pos1, pos2):
 
 
 def add_surrounding_nodes_to_fringe_astar(
-    map, current_node, fringe, size, visited, previous_node_map, cost, heuristic
+    map, current_node, fringe, size, visited, previous_node_map, cost, heuristic, end
 ):
     global tie_breaker, invalid, visit_count
     position = current_node
@@ -314,21 +314,33 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
+        if heuristic == "EUCLIDIAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
+
+        elif heuristic == "MANHATTAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
         if (adjacent_node) not in previous_node_map or (
             adjacent_node in previous_node_map
             and previous_node_map[adjacent_node][0] > path_cost
         ):
-            if heuristic == "EUCLIDIAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + euclidian_distance(position, adjacent_node),
-                    position,
-                )
-            elif heuristic == "MANHATTAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + manhattan_distance(position, adjacent_node),
-                    position,
-                )
+            previous_node_map[adjacent_node] = (
+                path_cost,
+                position,
+            )
 
     # check below
     adjacent_node = (position[0] + 1, position[1])
@@ -340,21 +352,33 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
+        if heuristic == "EUCLIDIAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
+
+        elif heuristic == "MANHATTAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
         if (adjacent_node) not in previous_node_map or (
             adjacent_node in previous_node_map
             and previous_node_map[adjacent_node][0] > path_cost
         ):
-            if heuristic == "EUCLIDIAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + euclidian_distance(position, adjacent_node),
-                    position,
-                )
-            elif heuristic == "MANHATTAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + manhattan_distance(position, adjacent_node),
-                    position,
-                )
+            previous_node_map[adjacent_node] = (
+                path_cost,
+                position,
+            )
 
     # check to left
     adjacent_node = (position[0], position[1] - 1)
@@ -366,21 +390,33 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
+        if heuristic == "EUCLIDIAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
+
+        elif heuristic == "MANHATTAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
         if (adjacent_node) not in previous_node_map or (
             adjacent_node in previous_node_map
             and previous_node_map[adjacent_node][0] > path_cost
         ):
-            if heuristic == "EUCLIDIAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + euclidian_distance(position, adjacent_node),
-                    position,
-                )
-            elif heuristic == "MANHATTAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + manhattan_distance(position, adjacent_node),
-                    position,
-                )
+            previous_node_map[adjacent_node] = (
+                path_cost,
+                position,
+            )
 
     # check to right
     adjacent_node = (position[0], position[1] + 1)
@@ -392,21 +428,33 @@ def add_surrounding_nodes_to_fringe_astar(
         step_cost = 1 + max(0, cost_difference)
         path_cost = step_cost + cost
         tie_breaker += 1
-        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
+        if heuristic == "EUCLIDIAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
+
+        elif heuristic == "MANHATTAN":
+            heapq.heappush(
+                fringe,
+                (
+                    path_cost + euclidian_distance(adjacent_node, end),
+                    tie_breaker,
+                    adjacent_node,
+                ),
+            )
         if (adjacent_node) not in previous_node_map or (
             adjacent_node in previous_node_map
             and previous_node_map[adjacent_node][0] > path_cost
         ):
-            if heuristic == "EUCLIDIAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + euclidian_distance(position, adjacent_node),
-                    position,
-                )
-            elif heuristic == "MANHATTAN":
-                previous_node_map[adjacent_node] = (
-                    path_cost + manhattan_distance(position, adjacent_node),
-                    position,
-                )
+            previous_node_map[adjacent_node] = (
+                path_cost,
+                position,
+            )
 
 
 def astar(map, size, start, end, map_original, mode, heuristic):
@@ -445,6 +493,7 @@ def astar(map, size, start, end, map_original, mode, heuristic):
             previous_node_map,
             cost,
             heuristic,
+            end,
         )
 
         if not first_visit[current_node]:
