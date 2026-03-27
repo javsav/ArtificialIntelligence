@@ -329,7 +329,7 @@ def add_surrounding_nodes_to_fringe_astar(
             heapq.heappush(
                 fringe,
                 (
-                    path_cost + euclidian_distance(adjacent_node, end),
+                    path_cost + manhattan_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
                     path_cost,
@@ -369,7 +369,7 @@ def add_surrounding_nodes_to_fringe_astar(
             heapq.heappush(
                 fringe,
                 (
-                    path_cost + euclidian_distance(adjacent_node, end),
+                    path_cost + manhattan_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
                     path_cost,
@@ -409,7 +409,7 @@ def add_surrounding_nodes_to_fringe_astar(
             heapq.heappush(
                 fringe,
                 (
-                    path_cost + euclidian_distance(adjacent_node, end),
+                    path_cost + manhattan_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
                     path_cost,
@@ -449,7 +449,7 @@ def add_surrounding_nodes_to_fringe_astar(
             heapq.heappush(
                 fringe,
                 (
-                    path_cost + euclidian_distance(adjacent_node, end),
+                    path_cost + manhattan_distance(adjacent_node, end),
                     tie_breaker,
                     adjacent_node,
                     path_cost,
