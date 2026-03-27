@@ -209,7 +209,7 @@ def add_surrounding_nodes_to_fringe_ucs(
     ):
         cost_difference = map[adjacent_node] - map[position]
         step_cost = 1 + max(0, cost_difference)
-        path_cost = step_cost + map[position]
+        path_cost = step_cost + cost
         tie_breaker += 1
         heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
         if (adjacent_node) not in previous_node_map or (
