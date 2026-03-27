@@ -141,12 +141,14 @@ def breadth_first(map, size, start, end, map_original, mode):
         print("\n", end="")
     return path, num_visits, visit_count, first_visit, last_visit
 
+tie_breaker = 0
 def add_surrounding_nodes_to_fringe_ucs(
     map, current_node, fringe, size, visited, previous_node_map, current_cost
 ):
-    position = current_node[1]
-    cost = current_node[0]
+    global tie_breaker
     global visit_count
+    position = current_node
+
     # check above
     adjacent_node = (position[0] - 1, position[1])
     if (
@@ -154,7 +156,11 @@ def add_surrounding_nodes_to_fringe_ucs(
         and map[adjacent_node]
         #and not visited[position[0] - 1][position[1]]
     ):
-        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        cost_difference = map[adjacent_node] - current_cost
+        step_cost = 1 + max(0, cost_difference)
+        path_cost = step_cost + current_cost
+        tie_breaker += 1
+        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
         if (adjacent_node) not in previous_node_map:
             previous_node_map[adjacent_node] = position
 
@@ -164,7 +170,11 @@ def add_surrounding_nodes_to_fringe_ucs(
         and map[adjacent_node]
         #and not visited[position[0] + 1][position[1]]
     ):
-        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        cost_difference = map[adjacent_node] - current_cost
+        step_cost = 1 + max(0, cost_difference)
+        path_cost = step_cost + current_cost
+        tie_breaker += 1
+        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
         if (adjacent_node) not in previous_node_map:
             previous_node_map[adjacent_node] = position
 
@@ -175,7 +185,11 @@ def add_surrounding_nodes_to_fringe_ucs(
         and map[adjacent_node]
         #and not visited[position[0]][position[1] - 1]
     ):
-        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        cost_difference = map[adjacent_node] - current_cost
+        step_cost = 1 + max(0, cost_difference)
+        path_cost = step_cost + current_cost
+        tie_breaker += 1
+        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
         if (adjacent_node) not in previous_node_map:
             previous_node_map[adjacent_node] = position
 
@@ -186,12 +200,16 @@ def add_surrounding_nodes_to_fringe_ucs(
         and map[adjacent_node]
         #and not visited[position[0]][position[1] + 1]
     ):
-        heapq.heappush(fringe, (map[adjacent_node], adjacent_node))
+        cost_difference = map[adjacent_node] - current_cost
+        step_cost = 1 + max(0, cost_difference)
+        path_cost = step_cost + current_cost
+        tie_breaker += 1
+        heapq.heappush(fringe, (path_cost, tie_breaker, adjacent_node))
         if (adjacent_node) not in previous_node_map:
             previous_node_map[adjacent_node] = position
 
 def uniform_cost(map, size, start, end, map_original, mode):
-    to_visit = [(map[start], start)]
+    to_visit = [(map[start], tie_breaker, start)]
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
@@ -208,20 +226,20 @@ def uniform_cost(map, size, start, end, map_original, mode):
     while to_visit:
         global visit_count
         visit_count = visit_count + 1
-        current_node_tuple = heapq.heappop(to_visit)
-        current_cost += current_node_tuple[0]
-        last_visit[current_node_tuple[1]] = visit_count
-        num_visits[current_node_tuple[1]] += 1
-        if visited[current_node_tuple[1]]:
+        cost, _, current_node = heapq.heappop(to_visit)
+        current_cost += cost
+        last_visit[current_node] = visit_count
+        num_visits[current_node] += 1
+        if visited[current_node]:
             continue
-        visited[current_node_tuple[1]] = True
+        visited[current_node] = True
         add_surrounding_nodes_to_fringe_ucs(
-            map, current_node_tuple, to_visit, size, visited, previous_node_map, current_cost
+            map, current_node, to_visit, size, visited, previous_node_map, cost
         )
 
-        if not first_visit[current_node_tuple[1]]:
-            first_visit[current_node_tuple[1]] = visit_count
-        if current_node_tuple[1] == end:
+        if not first_visit[current_node]:
+            first_visit[current_node] = visit_count
+        if current_node == end:
             break
     path[end[0]][end[1]] = "*"
     while end != start:
