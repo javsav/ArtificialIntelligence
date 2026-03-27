@@ -92,6 +92,7 @@ def add_surrounding_nodes_to_fringe(
 
 
 def breadth_first(map, size, start, end, map_original, mode):
+    goal = None
     to_visit = deque()
     to_visit.appendleft(start)
     visited = np.ones((size[0], size[1]), dtype=bool)
@@ -123,7 +124,11 @@ def breadth_first(map, size, start, end, map_original, mode):
         if not first_visit[current_node]:
             first_visit[current_node] = visit_count
         if current_node == end:
+            goal = True
             break
+    if current_node != end:
+        goal = False
+        return path, num_visits, visit_count, first_visit, last_visit, goal
     path[end[0]][end[1]] = "*"
     while end != start:
         x = previous_node_map[end][0]
@@ -137,7 +142,7 @@ def breadth_first(map, size, start, end, map_original, mode):
         for j in range(0, size[1], 1):
             print(path[i][j], end=" ")
         print("\n", end="")
-    return path, num_visits, visit_count, first_visit, last_visit
+    return path, num_visits, visit_count, first_visit, last_visit, goal
 
 
 tie_breaker = 0
@@ -330,6 +335,7 @@ def add_surrounding_nodes_to_fringe_astar(
 
 
 def uniform_cost(map, size, start, end, map_original, mode):
+    goal = None
     to_visit = [(0, tie_breaker, start)]
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
@@ -365,7 +371,11 @@ def uniform_cost(map, size, start, end, map_original, mode):
         if not first_visit[current_node]:
             first_visit[current_node] = visit_count
         if current_node == end:
+            goal = True
             break
+    if current_node != end:
+        goal = False
+        return path, num_visits, visit_count, first_visit, last_visit, goal
     path[end[0]][end[1]] = "*"
     while end != start:
         cost = previous_node_map[end][0]
@@ -380,7 +390,7 @@ def uniform_cost(map, size, start, end, map_original, mode):
         for j in range(0, size[1], 1):
             print(path[i][j], end=" ")
         print("\n", end="")
-    return path, num_visits, visit_count, first_visit, last_visit
+    return path, num_visits, visit_count, first_visit, last_visit, goal
 
 
 def euclidian_distance(pos1, pos2):
@@ -398,6 +408,7 @@ def manhattan_distance(pos1, pos2):
 
 
 def astar(map, size, start, end, map_original, mode, heuristic):
+    goal = None
     to_visit = [(0, tie_breaker, start)]
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
@@ -435,7 +446,11 @@ def astar(map, size, start, end, map_original, mode, heuristic):
         if not first_visit[current_node]:
             first_visit[current_node] = visit_count
         if current_node == end:
+            goal = True
             break
+    if current_node != end:
+        goal = False
+        return path, num_visits, visit_count, first_visit, last_visit, goal
     path[end[0]][end[1]] = "*"
     while end != start:
         cost = previous_node_map[end][0]
@@ -451,7 +466,7 @@ def astar(map, size, start, end, map_original, mode, heuristic):
             print(path[i][j], end=" ")
         print("\n", end="")
 
-    return path, num_visits, visit_count, first_visit, last_visit
+    return path, num_visits, visit_count, first_visit, last_visit, goal
 
 
 def parse_map():
@@ -502,9 +517,11 @@ def parse_map():
 def pathfind(mode, map_file, algorithm, heuristic=None):
     size, start, end, map, map_str = parse_map()
     if algorithm == "BFS":
-        path, num_visits, visit_count, first_visit, last_visit = breadth_first(
+        path, num_visits, visit_count, first_visit, last_visit, goal = breadth_first(
             map, size, start, end, map_str, mode
         )
+        if not goal:
+            print("null")
         if mode == "DEBUG":
             x_string = "X"
             dot_string = "."
@@ -546,9 +563,11 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
     elif algorithm == "UCS":
-        path, num_visits, visit_count, first_visit, last_visit = uniform_cost(
+        path, num_visits, visit_count, first_visit, last_visit, goal = uniform_cost(
             map, size, start, end, map_str, mode
         )
+        if not goal:
+            print("null")
         if mode == "DEBUG":
             x_string = "X"
             dot_string = "."
@@ -596,9 +615,11 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
             )
             sys.exit()
 
-        path, num_visits, visit_count, first_visit, last_visit = astar(
+        path, num_visits, visit_count, first_visit, last_visit, goal = astar(
             map, size, start, end, map_str, mode, heuristic
         )
+        if not goal:
+            print("null")
         if mode == "DEBUG":
             x_string = "X"
             dot_string = "."
