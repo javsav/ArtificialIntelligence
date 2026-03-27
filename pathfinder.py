@@ -609,11 +609,11 @@ def pathfind(mode, map_file, algorithm, heuristic=None):
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
                 print("\n", end="")
     elif algorithm == "ASTAR":
-        if heuristic != "MANHATTAN" and heuristic != "EUCLIDIAN":
-            print(
-                f"Invalid heuristic: {sys.argv[4]}. Valid heuristics are euclidian or manhattan (case insensitive)"
-            )
-            sys.exit()
+        # if heuristic != "MANHATTAN" and heuristic != "EUCLIDIAN":
+        #     print(
+        #         f"Invalid heuristic: {sys.argv[4]}. Valid heuristics are euclidian or manhattan (case insensitive)"
+        #     )
+        #     sys.exit()
 
         path, num_visits, visit_count, first_visit, last_visit, goal = astar(
             map, size, start, end, map_str, mode, heuristic
