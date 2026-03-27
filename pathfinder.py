@@ -141,19 +141,19 @@ def breadth_first(map, size, start, end, map_original, mode):
 
 
 tie_breaker = 0
+invalid = -1
 
 
 def add_surrounding_nodes_to_fringe_ucs(
     map, current_node, fringe, size, visited, previous_node_map, cost
 ):
-    global tie_breaker
-    global visit_count
+    global tie_breaker, invalid, visit_count
     position = current_node
 
     # check above
     adjacent_node = (position[0] - 1, position[1])
     if (
-        adjacent_node[0] > -1 and map[adjacent_node]
+        adjacent_node[0] > -1 and map[adjacent_node] != invalid
         # and not visited[position[0] - 1][position[1]]
     ):
         cost_difference = map[adjacent_node] - map[position]
@@ -170,7 +170,7 @@ def add_surrounding_nodes_to_fringe_ucs(
     # check below
     adjacent_node = (position[0] + 1, position[1])
     if (
-        adjacent_node[0] < size[0] and map[adjacent_node]
+        adjacent_node[0] < size[0] and map[adjacent_node] != invalid
         # and not visited[position[0] + 1][position[1]]
     ):
         cost_difference = map[adjacent_node] - map[position]
@@ -187,7 +187,7 @@ def add_surrounding_nodes_to_fringe_ucs(
     # check to left
     adjacent_node = (position[0], position[1] - 1)
     if (
-        (adjacent_node[1]) > -1 and map[adjacent_node]
+        (adjacent_node[1]) > -1 and map[adjacent_node] != invalid
         # and not visited[position[0]][position[1] - 1]
     ):
         cost_difference = map[adjacent_node] - map[position]
@@ -204,7 +204,7 @@ def add_surrounding_nodes_to_fringe_ucs(
     # check to right
     adjacent_node = (position[0], position[1] + 1)
     if (
-        (adjacent_node[1]) < size[1] and map[adjacent_node]
+        (adjacent_node[1]) < size[1] and map[adjacent_node] != invalid
         # and not visited[position[0]][position[1] + 1]
     ):
         cost_difference = map[adjacent_node] - map[position]
@@ -220,7 +220,7 @@ def add_surrounding_nodes_to_fringe_ucs(
 
 
 def uniform_cost(map, size, start, end, map_original, mode):
-    to_visit = [(map[start], tie_breaker, start)]
+    to_visit = [(0, tie_breaker, start)]
     visited = np.ones((size[0], size[1]), dtype=bool)
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
@@ -311,7 +311,7 @@ def parse_map():
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             if map_array[i][j] == "X":
-                map_array_int[i][j] = 0
+                map_array_int[i][j] = -1
             else:
                 map_array_int[i][j] = int(map_array[i][j])
 
@@ -351,7 +351,7 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             print("first visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    if first_visit[i][j] == 0:
+                    if first_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
@@ -359,7 +359,7 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             print("last visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    if last_visit[i][j] == 0:
+                    if last_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
@@ -395,7 +395,7 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             print("first visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    if first_visit[i][j] == 0:
+                    if first_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
@@ -403,7 +403,7 @@ def pathfind(mode, map_file, algorithm, heuristic="euclidian"):
             print("last visit:")
             for i in range(0, size[0], 1):
                 for j in range(0, size[1], 1):
-                    if last_visit[i][j] == 0:
+                    if last_visit[i][j] == 0 and map_str[i][j] == "X":
                         print(f"{x_string:{visit_size}s}", end=" ")
                     else:
                         print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
