@@ -31,7 +31,7 @@ def add_surrounding_nodes_to_fringe(
     global visit_count, invalid
     possible_directions = {0, 1, 2, 3}
     while possible_directions:
-        direction = random.randint(min(possible_directions), max(possible_directions))
+        direction = random.choice(tuple(possible_directions))
         possible_directions.remove(direction)
         if direction == 0:
             # check above
@@ -603,16 +603,16 @@ def parse_map():
 
 def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     size, start, end, map, map_str, path, path_str, t_ini, t_fin, alpha, d = parse_map()
-    print(
-        f"size:{size}, start:{start}, end:{end}, t_ini:{t_ini}, t_fin:{t_fin}, alpha:{alpha}, d:{d}"
-    )
-    print("map")
-    print(map)
-    print("path")
-    print(path)
-    print("path_str")
-    print(path_str)
-    input("Press enter to continue")
+    # print(
+    #     f"size:{size}, start:{start}, end:{end}, t_ini:{t_ini}, t_fin:{t_fin}, alpha:{alpha}, d:{d}"
+    # )
+    # print("map")
+    # print(map)
+    # print("path")
+    # print(path)
+    # print("path_str")
+    # print(path_str)
+    # input("Press enter to continue")
     path, num_visits, visit_count, first_visit, last_visit, goal = (
         randomised_breadth_first(map, size, start, end, map_str, mode)
     )
