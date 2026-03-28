@@ -25,6 +25,23 @@ def parse_mode(arg1, arg2, arg3, arg4, arg5, arg6, arg7):
             )
 
 
+def get_ordered_path(path_str, start, end):
+    queue = deque([[start]])
+    visited = {start}
+    while queue:
+        path = queue.popleft()
+        curr = path[-1]
+        if curr == end:
+            return path
+        r, c = curr
+        for nr, nc in [(r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)]:
+            if 0 <= nr < len(path_str) and 0 <= nc < len(path_str[0]):
+                if path_str[nr][nc] == "*" and (nr, nc) not in visited:
+                    visited.add((nr, nc))
+                    queue.append(path + [(nr, nc)])
+    return []
+
+
 def add_surrounding_nodes_to_fringe(
     map, position, fringe, size, visited, previous_node_map, algorithm
 ):
@@ -123,15 +140,7 @@ def randomised_breadth_first(map, size, start, end, map_original, mode):
         path[x][y] = "*"
         end = previous_node_map[end]
     path[start[0]][start[1]] = "*"
-    # if mode == "DEBUG":
-    #     print("path:")
-    # for i in range(0, size[0], 1):
-    #     for j in range(0, size[1], 1):
-    #         print(path[i][j], end=" ")
-    #     print("\n", end="")
-
-    # print("\n", end="")
-    return path, num_visits, visit_count, first_visit, last_visit, goal
+    return path, goal
 
 
 def parse_map():
@@ -218,126 +227,49 @@ def parse_map():
     )
 
 
-def manhattan_distance(pos1, pos2):
-    x1 = pos1[0]
-    x2 = pos2[0]
-    y1 = pos1[1]
-    y2 = pos2[1]
-    return abs(x2 - x1) + abs(y2 - y1)
+def simulated_annealing(path_str, start, end, d):
+    ordered_path = get_ordered_path(path_str, start, end)
+    i = random.randint(0, len(ordered_path) - 1)
+    point_choice = ordered_path[i]
+
+    target_index = min(i + int(d), len(ordered_path) - 1)
+    segment_end = ordered_path[target_index]
+    return point_choice, segment_end
 
 
-def simulated_annealing(path, d, map, size, start, end):
-    path_points = []
-    new_end = end
-    success = False
-    step_x = 1
-    if start[0] > end[0]:
-        step_x = -1
-    step_y = 1
-    if start[1] > end[1]:
-        step_y = -1
-    for i in range(start[0], end[0] + 1, step_x):
-        for j in range(start[1], end[1] + 1, step_y):
-            if i == start[0] and j == start[1]:
-                continue
-            if path[i][j] == -2:
-                path_points.append((i, j))
-
-    point_choice = random.choice(path_points)
-    point_position = None
-    for i in range(0, len(path_points)):
-        if (path_points)[i] == point_choice:
-            point_position = i
-    if point_position is None:
-        print("Error: could not find point position")
-        sys.exit()
-    path_points_toward_end = path_points[point_position + 1 :]
-    path_points_set = set(path_points_toward_end)
-    while path_points_set:
-        for i in range(0, len(path_points_toward_end)):
-            if manhattan_distance(point_choice, (path_points_toward_end)[i]) == d:
-                success = True
-                new_end = (path_points_toward_end)[i]
-            else:
-                success = False
-                new_end = end
-            path_points_set.remove((path_points_toward_end[i]))
-    return success, new_end, point_choice
-
-
-def calculate_g_cost_of_segment(start, end, map, path):
+def calculate_g_cost_of_segment(path_str, start, end, map_int):
+    ordered = get_ordered_path(path_str, start, end)
     g_cost = 0
-    step_cost = None
-    path_points = []
-    step_x = 1
-    if start[0] > end[0]:
-        step_x = -1
-    step_y = 1
-    if start[1] > end[1]:
-        step_y = -1
-    for i in range(start[0], end[0] + 1, step_x):
-        for j in range(start[1], end[1] + 1, step_y):
-            if path[i][j] == -2:
-                path_points.append((i, j))
-    path_points_toward_end = path_points
-    # print("path")
-    # print(path)
-    # print(path_points_toward_end)
-    # input("...")
-    path_points_set = set(path_points_toward_end)
-    break_condition = len(path_points_toward_end)
-    while path_points_set:
-        if len(path_points_set) < break_condition and len(path_points_set) == 1:
-            break
-        for i in range(0, len(path_points_toward_end) - 1, 1):
-            cost_difference = (
-                map[path_points_toward_end[i + 1]] - map[path_points_toward_end[i]]
-            )
-            step_cost = 1 + max(0, cost_difference)
-            g_cost += step_cost
-            # print("path points to end")
-            # print(path_points_toward_end)
-            # print("path points set")
-            # print(path_points_set)
-            # print("path points to end[i]")
-            # print((path_points_toward_end[i]))
-            # print("i")
-            # print(i)
-            # input("waiting")
-            # if path_points_toward_end[]
-            path_points_set.remove((path_points_toward_end[i]))
+    for i in range(len(ordered) - 1):
+        current_node = ordered[i]
+        next_path_node = ordered[i + 1]
+        cost_difference = map_int[current_node] - map_int[next_path_node]
+        g_cost += 1 + max(0, cost_difference)
     return g_cost
 
 
 def replace_path_segment(
-    point_choice, new_end, map, path_segment, path, start, end, size
+    point_choice, segment_end, old_path_str, map_str, new_segment_str, start, end
 ):
+    old_path_ordered = get_ordered_path(old_path_str, start, end)
+    segment_start_index = old_path_ordered.index(point_choice)
+    segment_end_index = old_path_ordered.index(segment_end)
 
-    step_x = 1
-    # print("path segment:")
-    # print(path_segment)
-    # print("original path:")
-    # print(path)
-    # input("Press Enter")
-    new_path = copy.deepcopy(path)
-    if point_choice[0] > new_end[0]:
-        step_x = -1
-    step_y = 1
-    if point_choice[1] > new_end[1]:
-        step_y = -1
-    for i in range(point_choice[0], new_end[0] + 1, step_x):
-        for j in range(point_choice[1], new_end[1] + 1, step_y):
-            new_path[i][j] = path_segment[i][j]
-    new_path_int = np.zeros((size[0], size[1]), dtype=int)
-    for i in range(0, size[0]):
-        for j in range(0, size[1]):
-            if new_path[i][j] == "*":
-                new_path_int[i][j] = -2
-            elif new_path[i][j] == "X":
-                new_path_int[i][j] = -1
-            else:
-                new_path_int[i][j] = int(new_path[i][j])
-    return new_path, new_path_int
+    if segment_start_index > segment_end_index:
+        segment_start_index, segment_end_index = segment_end_index, segment_start_index
+
+    new_segment_ordered = get_ordered_path(new_segment_str, point_choice, segment_end)
+    new_sequence = (
+        old_path_ordered[:segment_start_index]
+        + new_segment_ordered
+        + old_path_ordered[segment_end_index + 1 :]
+    )
+
+    new_path_str = copy.deepcopy(map_str)
+    for r, c in new_sequence:
+        new_path_str[r][c] = "*"
+
+    return new_path_str
 
 
 def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
@@ -358,45 +290,25 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     # input("Press enter to continue")
     t_cost_list = []
     while t_ini > t_fin:
-        success, new_end, point_choice = simulated_annealing(
-            path, d, map, size, start, end
+        point_choice, segment_end = simulated_annealing(path_str, start, end, d)
+        path_segment, goal = randomised_breadth_first(
+            map, size, point_choice, segment_end, map_str, mode
         )
-
-        path_segment, num_visits, visit_count, first_visit, last_visit, goal = (
-            randomised_breadth_first(map, size, point_choice, new_end, map_str, mode)
-        )
-        if not goal:
-            print("null")
-        new_path_str, new_path = replace_path_segment(
-            point_choice, new_end, map, path_segment, path_str, start, end, size
+        new_path_str = replace_path_segment(
+            point_choice, segment_end, path_str, map_str, path_segment, start, end
         )
         delta_g = calculate_g_cost_of_segment(
-            start, end, map, path
-        ) - calculate_g_cost_of_segment(start, end, map, new_path)
-
+            path_str, start, end, map
+        ) - calculate_g_cost_of_segment(new_path_str, start, end, map)
         if delta_g > 0:
-            path = new_path
+            path_str = new_path_str
         else:
-            # print("delta-g")
-            # print(delta_g)
-            # print("t_ini")
-            # print(t_ini)
-            # print("division")
-            # print(float(delta_g) / float(t_ini))
-            if delta_g == 0:
-                path = new_path
+            probability = np.exp(float(delta_g) / float(t_ini))
+            if random.random() < probability:
                 path_str = new_path_str
-            else:
-                probability = np.exp(float(delta_g) / float(t_ini))
-                if probability > 0.5:
-                    path = new_path
-                    path_str = new_path_str
-        t_cost_list.append(
-            (t_ini, calculate_g_cost_of_segment(start, end, map, new_path))
-        )
-        # print(type(t_ini))
-        # print(type(alpha))
-        # input("...")
+
+        path_cost = calculate_g_cost_of_segment(path_str, start, end, map)
+        t_cost_list.append((t_ini, path_cost))
         t_ini = float(alpha * t_ini)
     if mode == "DEBUG":
         print("path:")
