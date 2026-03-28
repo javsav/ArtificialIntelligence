@@ -356,6 +356,7 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     # print("path_str")
     # print(path_str)
     # input("Press enter to continue")
+    t_cost_list = []
     while t_ini > t_fin:
         success, new_end, point_choice = simulated_annealing(
             path, d, map, size, start, end
@@ -372,6 +373,7 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
         delta_g = calculate_g_cost_of_segment(
             start, end, map, path
         ) - calculate_g_cost_of_segment(start, end, map, new_path)
+
         if delta_g > 0:
             path = new_path
         else:
@@ -389,57 +391,63 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
                 if probability > 0.5:
                     path = new_path
                     path_str = new_path_str
+        t_cost_list.append(
+            (t_ini, calculate_g_cost_of_segment(start, end, map, new_path))
+        )
         # print(type(t_ini))
         # print(type(alpha))
         # input("...")
         t_ini = float(alpha * t_ini)
-        # if mode == "DEBUG":
-    print("path:")
+    if mode == "DEBUG":
+        print("path:")
     for i in range(0, size[0], 1):
         for j in range(0, size[1], 1):
             print(path_str[i][j], end=" ")
         print("\n", end="")
-
+    if mode == "DEBUG":
+        print("T&cost:")
+        for i in range(0, len(t_cost_list)):
+            print(f"T = {t_cost_list[i][0]}, cost = {t_cost_list[i][1]}")
     print("\n", end="")
-    x_string = "X"
-    dot_string = "."
-    visit_size = len(str(abs(visit_count)))
-    print("#visits:")
-    max_num_visits = 0
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            if num_visits[i][j] > max_num_visits:
-                max_num_visits = num_visits[i][j]
-    max_num_visits_digits = 0
-    while max_num_visits > 0:
-        max_num_visits //= 10
-        max_num_visits_digits += 1
+    # x_string = "X"
+    # dot_string = "."
+    # visit_size = len(str(abs(visit_count)))
+    # print("#visits:")
+    # max_num_visits = 0
+    # for i in range(0, size[0], 1):
+    #     for j in range(0, size[1], 1):
+    #         if num_visits[i][j] > max_num_visits:
+    #             max_num_visits = num_visits[i][j]
+    # max_num_visits_digits = 0
+    # while max_num_visits > 0:
+    #     max_num_visits //= 10
+    #     max_num_visits_digits += 1
 
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            if num_visits[i][j] == 0 and map_str[i][j] == "X":
-                print(f"{x_string:{max_num_visits_digits}s}", end=" ")
-            elif num_visits[i][j] == 0 and map_str[i][j] != "X":
-                print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
-            else:
-                print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
-        print("\n", end="")
-    print("first visit:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            if first_visit[i][j] == 0 and map_str[i][j] == "X":
-                print(f"{x_string:{visit_size}s}", end=" ")
-            else:
-                print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
-        print("\n", end="")
-    print("last visit:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            if last_visit[i][j] == 0 and map_str[i][j] == "X":
-                print(f"{x_string:{visit_size}s}", end=" ")
-            else:
-                print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
-        print("\n", end="")
+    # for i in range(0, size[0], 1):
+    #     for j in range(0, size[1], 1):
+    #         if num_visits[i][j] == 0 and map_str[i][j] == "X":
+    #             print(f"{x_string:{max_num_visits_digits}s}", end=" ")
+    #         elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+    #             print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
+    #         else:
+    #             print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
+    #     print("\n", end="")
+    # print("first visit:")
+    # for i in range(0, size[0], 1):
+    #     for j in range(0, size[1], 1):
+    #         if first_visit[i][j] == 0 and map_str[i][j] == "X":
+    #             print(f"{x_string:{visit_size}s}", end=" ")
+    #         else:
+    #             print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
+    #     print("\n", end="")
+    # print("last visit:")
+    # for i in range(0, size[0], 1):
+    #     for j in range(0, size[1], 1):
+    #         if last_visit[i][j] == 0 and map_str[i][j] == "X":
+    #             print(f"{x_string:{visit_size}s}", end=" ")
+    #         else:
+    #             print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
+    #     print("\n", end="")
 
 
 parse_mode(
