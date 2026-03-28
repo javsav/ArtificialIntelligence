@@ -601,6 +601,43 @@ def parse_map():
     )
 
 
+def manhattan_distance(pos1, pos2):
+    x1 = pos1[0]
+    x2 = pos2[0]
+    y1 = pos1[1]
+    y2 = pos2[1]
+    return abs(x2 - x1) + abs(y2 - y1)
+
+
+def simulated_annealing(path, d, map, size, start, end):
+    path_points = {(start)}
+    success = False
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            if i == start[0] and j == start[1]:
+                continue
+            if path[i][j] == -2:
+                path_points.add((i, j))
+
+    point_choice = random.choice(tuple(path_points))
+    point_position = 0
+    for i in range(0, len(tuple(path_points))):
+        if tuple(path_points)[i] == point_choice:
+            point_position = i
+    path_points_list = tuple(path_points)
+    path_points_toward_end = path_points_list[point_position:]
+    path_points_set = set(path_points_toward_end)
+    while path_points_set:
+        for i in range(0, len(tuple(path_points_set))):
+            if manhattan_distance(point_choice, tuple(path_points)[i]) == d:
+                success = True
+                new_end = tuple(path_points)[i]
+            else:
+                success = False
+                new_end = end
+    return success, new_end, point_choice
+
+
 def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     size, start, end, map, map_str, path, path_str, t_ini, t_fin, alpha, d = parse_map()
     # print(
@@ -613,11 +650,17 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     # print("path_str")
     # print(path_str)
     # input("Press enter to continue")
-    path, num_visits, visit_count, first_visit, last_visit, goal = (
-        randomised_breadth_first(map, size, start, end, map_str, mode)
-    )
-    if not goal:
-        print("null")
+    while t_ini > t_fin:
+        success, new_end, point_choice = simulated_annealing(
+            path, d, map, size, start, end
+        )
+
+        path, num_visits, visit_count, first_visit, last_visit, goal, cost = (
+            randomised_breadth_first(map, size, point_choice, new_end, map_str, mode)
+        )
+        if not goal:
+            print("null")
+        t_ini = alpha * t_ini
     if mode == "DEBUG":
         x_string = "X"
         dot_string = "."
