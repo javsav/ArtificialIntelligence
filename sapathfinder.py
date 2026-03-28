@@ -123,12 +123,14 @@ def randomised_breadth_first(map, size, start, end, map_original, mode):
         path[x][y] = "*"
         end = previous_node_map[end]
     path[start[0]][start[1]] = "*"
-    if mode == "DEBUG":
-        print("path:")
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
-            print(path[i][j], end=" ")
-        print("\n", end="")
+    # if mode == "DEBUG":
+    #     print("path:")
+    # for i in range(0, size[0], 1):
+    #     for j in range(0, size[1], 1):
+    #         print(path[i][j], end=" ")
+    #     print("\n", end="")
+
+    # print("\n", end="")
     return path, num_visits, visit_count, first_visit, last_visit, goal
 
 
@@ -225,37 +227,125 @@ def manhattan_distance(pos1, pos2):
 
 
 def simulated_annealing(path, d, map, size, start, end):
-    path_points = {(start)}
+    path_points = []
+    new_end = end
     success = False
-    for i in range(0, size[0], 1):
-        for j in range(0, size[1], 1):
+    step_x = 1
+    if start[0] > end[0]:
+        step_x = -1
+    step_y = 1
+    if start[1] > end[1]:
+        step_y = -1
+    for i in range(start[0], end[0] + 1, step_x):
+        for j in range(start[1], end[1] + 1, step_y):
             if i == start[0] and j == start[1]:
                 continue
             if path[i][j] == -2:
-                path_points.add((i, j))
+                path_points.append((i, j))
 
-    point_choice = random.choice(tuple(path_points))
-    point_position = 0
-    for i in range(0, len(tuple(path_points))):
-        if tuple(path_points)[i] == point_choice:
+    point_choice = random.choice(path_points)
+    point_position = None
+    for i in range(0, len(path_points)):
+        if (path_points)[i] == point_choice:
             point_position = i
-    path_points_list = tuple(path_points)
-    path_points_toward_end = path_points_list[point_position:]
+    if point_position is None:
+        print("Error: could not find point position")
+        sys.exit()
+    path_points_toward_end = path_points[point_position + 1 :]
     path_points_set = set(path_points_toward_end)
     while path_points_set:
-        for i in range(0, len(tuple(path_points_set))):
-            if manhattan_distance(point_choice, tuple(path_points)[i]) == d:
+        for i in range(0, len(path_points_toward_end)):
+            if manhattan_distance(point_choice, (path_points_toward_end)[i]) == d:
                 success = True
-                new_end = tuple(path_points)[i]
+                new_end = (path_points_toward_end)[i]
             else:
                 success = False
                 new_end = end
-        path_points_set.remove(tuple(path_points)[i])
+            path_points_set.remove((path_points_toward_end[i]))
     return success, new_end, point_choice
+
+
+def calculate_g_cost_of_segment(start, end, map, path):
+    g_cost = 0
+    step_cost = None
+    path_points = []
+    step_x = 1
+    if start[0] > end[0]:
+        step_x = -1
+    step_y = 1
+    if start[1] > end[1]:
+        step_y = -1
+    for i in range(start[0], end[0] + 1, step_x):
+        for j in range(start[1], end[1] + 1, step_y):
+            if path[i][j] == -2:
+                path_points.append((i, j))
+    path_points_toward_end = path_points
+    # print("path")
+    # print(path)
+    # print(path_points_toward_end)
+    # input("...")
+    path_points_set = set(path_points_toward_end)
+    break_condition = len(path_points_toward_end)
+    while path_points_set:
+        if len(path_points_set) < break_condition and len(path_points_set) == 1:
+            break
+        for i in range(0, len(path_points_toward_end) - 1, 1):
+            cost_difference = (
+                map[path_points_toward_end[i + 1]] - map[path_points_toward_end[i]]
+            )
+            step_cost = 1 + max(0, cost_difference)
+            g_cost += step_cost
+            # print("path points to end")
+            # print(path_points_toward_end)
+            # print("path points set")
+            # print(path_points_set)
+            # print("path points to end[i]")
+            # print((path_points_toward_end[i]))
+            # print("i")
+            # print(i)
+            # input("waiting")
+            # if path_points_toward_end[]
+            path_points_set.remove((path_points_toward_end[i]))
+    return g_cost
+
+
+def replace_path_segment(
+    point_choice, new_end, map, path_segment, path, start, end, size
+):
+
+    step_x = 1
+    # print("path segment:")
+    # print(path_segment)
+    # print("original path:")
+    # print(path)
+    # input("Press Enter")
+    new_path = copy.deepcopy(path)
+    if point_choice[0] > new_end[0]:
+        step_x = -1
+    step_y = 1
+    if point_choice[1] > new_end[1]:
+        step_y = -1
+    for i in range(point_choice[0], new_end[0] + 1, step_x):
+        for j in range(point_choice[1], new_end[1] + 1, step_y):
+            new_path[i][j] = path_segment[i][j]
+    new_path_int = np.zeros((size[0], size[1]), dtype=int)
+    for i in range(0, size[0]):
+        for j in range(0, size[1]):
+            if new_path[i][j] == "*":
+                new_path_int[i][j] = -2
+            elif new_path[i][j] == "X":
+                new_path_int[i][j] = -1
+            else:
+                new_path_int[i][j] = int(new_path[i][j])
+    return new_path, new_path_int
 
 
 def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     size, start, end, map, map_str, path, path_str, t_ini, t_fin, alpha, d = parse_map()
+    t_ini = float(t_ini)
+    t_fin = float(t_fin)
+    alpha = float(alpha)
+    d = float(d)
     # print(
     #     f"size:{size}, start:{start}, end:{end}, t_ini:{t_ini}, t_fin:{t_fin}, alpha:{alpha}, d:{d}"
     # )
@@ -271,52 +361,85 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
             path, d, map, size, start, end
         )
 
-        path, num_visits, visit_count, first_visit, last_visit, goal, cost = (
+        path_segment, num_visits, visit_count, first_visit, last_visit, goal = (
             randomised_breadth_first(map, size, point_choice, new_end, map_str, mode)
         )
         if not goal:
             print("null")
-        t_ini = alpha * t_ini
-    if mode == "DEBUG":
-        x_string = "X"
-        dot_string = "."
-        visit_size = len(str(abs(visit_count)))
-        print("#visits:")
-        max_num_visits = 0
-        for i in range(0, size[0], 1):
-            for j in range(0, size[1], 1):
-                if num_visits[i][j] > max_num_visits:
-                    max_num_visits = num_visits[i][j]
-        max_num_visits_digits = 0
-        while max_num_visits > 0:
-            max_num_visits //= 10
-            max_num_visits_digits += 1
+        new_path_str, new_path = replace_path_segment(
+            point_choice, new_end, map, path_segment, path_str, start, end, size
+        )
+        delta_g = calculate_g_cost_of_segment(
+            start, end, map, path
+        ) - calculate_g_cost_of_segment(start, end, map, new_path)
+        if delta_g > 0:
+            path = new_path
+        else:
+            # print("delta-g")
+            # print(delta_g)
+            # print("t_ini")
+            # print(t_ini)
+            # print("division")
+            # print(float(delta_g) / float(t_ini))
+            if delta_g == 0:
+                path = new_path
+                path_str = new_path_str
+            else:
+                probability = np.exp(float(delta_g) / float(t_ini))
+                if probability > 0.5:
+                    path = new_path
+                    path_str = new_path_str
+        # print(type(t_ini))
+        # print(type(alpha))
+        # input("...")
+        t_ini = float(alpha * t_ini)
+        # if mode == "DEBUG":
+    print("path:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            print(path_str[i][j], end=" ")
+        print("\n", end="")
 
-        for i in range(0, size[0], 1):
-            for j in range(0, size[1], 1):
-                if num_visits[i][j] == 0 and map_str[i][j] == "X":
-                    print(f"{x_string:{max_num_visits_digits}s}", end=" ")
-                elif num_visits[i][j] == 0 and map_str[i][j] != "X":
-                    print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
-                else:
-                    print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
-            print("\n", end="")
-        print("first visit:")
-        for i in range(0, size[0], 1):
-            for j in range(0, size[1], 1):
-                if first_visit[i][j] == 0 and map_str[i][j] == "X":
-                    print(f"{x_string:{visit_size}s}", end=" ")
-                else:
-                    print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
-            print("\n", end="")
-        print("last visit:")
-        for i in range(0, size[0], 1):
-            for j in range(0, size[1], 1):
-                if last_visit[i][j] == 0 and map_str[i][j] == "X":
-                    print(f"{x_string:{visit_size}s}", end=" ")
-                else:
-                    print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
-            print("\n", end="")
+    print("\n", end="")
+    x_string = "X"
+    dot_string = "."
+    visit_size = len(str(abs(visit_count)))
+    print("#visits:")
+    max_num_visits = 0
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            if num_visits[i][j] > max_num_visits:
+                max_num_visits = num_visits[i][j]
+    max_num_visits_digits = 0
+    while max_num_visits > 0:
+        max_num_visits //= 10
+        max_num_visits_digits += 1
+
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            if num_visits[i][j] == 0 and map_str[i][j] == "X":
+                print(f"{x_string:{max_num_visits_digits}s}", end=" ")
+            elif num_visits[i][j] == 0 and map_str[i][j] != "X":
+                print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
+            else:
+                print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
+        print("\n", end="")
+    print("first visit:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            if first_visit[i][j] == 0 and map_str[i][j] == "X":
+                print(f"{x_string:{visit_size}s}", end=" ")
+            else:
+                print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
+        print("\n", end="")
+    print("last visit:")
+    for i in range(0, size[0], 1):
+        for j in range(0, size[1], 1):
+            if last_visit[i][j] == 0 and map_str[i][j] == "X":
+                print(f"{x_string:{visit_size}s}", end=" ")
+            else:
+                print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
+        print("\n", end="")
 
 
 parse_mode(
