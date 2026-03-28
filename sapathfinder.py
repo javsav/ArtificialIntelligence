@@ -407,47 +407,8 @@ def pathfind(mode, map_file, initial_path, t_ini, t_fin, alpha, d):
     if mode == "DEBUG":
         print("T&cost:")
         for i in range(0, len(t_cost_list)):
-            print(f"T = {t_cost_list[i][0]}, cost = {t_cost_list[i][1]}")
+            print(f"T = {t_cost_list[i][0]:.6f}, cost = {t_cost_list[i][1]}")
     print("\n", end="")
-    # x_string = "X"
-    # dot_string = "."
-    # visit_size = len(str(abs(visit_count)))
-    # print("#visits:")
-    # max_num_visits = 0
-    # for i in range(0, size[0], 1):
-    #     for j in range(0, size[1], 1):
-    #         if num_visits[i][j] > max_num_visits:
-    #             max_num_visits = num_visits[i][j]
-    # max_num_visits_digits = 0
-    # while max_num_visits > 0:
-    #     max_num_visits //= 10
-    #     max_num_visits_digits += 1
-
-    # for i in range(0, size[0], 1):
-    #     for j in range(0, size[1], 1):
-    #         if num_visits[i][j] == 0 and map_str[i][j] == "X":
-    #             print(f"{x_string:{max_num_visits_digits}s}", end=" ")
-    #         elif num_visits[i][j] == 0 and map_str[i][j] != "X":
-    #             print(f"{dot_string:{max_num_visits_digits}s}", end=" ")
-    #         else:
-    #             print(f"{num_visits[i][j]:{max_num_visits_digits}d}", end=" ")
-    #     print("\n", end="")
-    # print("first visit:")
-    # for i in range(0, size[0], 1):
-    #     for j in range(0, size[1], 1):
-    #         if first_visit[i][j] == 0 and map_str[i][j] == "X":
-    #             print(f"{x_string:{visit_size}s}", end=" ")
-    #         else:
-    #             print(f"{first_visit[i][j]:{visit_size}d}", end=" ")
-    #     print("\n", end="")
-    # print("last visit:")
-    # for i in range(0, size[0], 1):
-    #     for j in range(0, size[1], 1):
-    #         if last_visit[i][j] == 0 and map_str[i][j] == "X":
-    #             print(f"{x_string:{visit_size}s}", end=" ")
-    #         else:
-    #             print(f"{last_visit[i][j]:{visit_size}d}", end=" ")
-    #     print("\n", end="")
 
 
 parse_mode(
